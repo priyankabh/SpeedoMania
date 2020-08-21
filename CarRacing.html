@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>SPEEDO MANIA</title>
+        <iframe style="display: none;" width="0" height="0"
+            src="https://www.youtuberepeater.com/watch?v=X-UFpPHLKco#gsc.tab=0" frameborder="0"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <style>
+            *{
+                margin:0;padding:0;
+            }
+            .hide{
+                display: none;
+            }
+            .cargame{
+                width: 100%;
+                height: 100vh;
+                background-image: url("https://img5.goodfon.com/wallpaper/big/d/a2/4k-ultra-hd-background-building-bottom-view-low-angle-exposu.jpg");
+                background-repeat: no-repeat;
+                background-size: 100% 100%;
+
+
+            }
+            .car{
+                width: 50px;height: 100px;
+                position: absolute;
+                bottom: 120px;
+                background-image: url("car7.png");
+                background-repeat: no-repeat;
+                background-size: 100% 100%;
+            }
+            .enemy{
+                width: 120px;height: 80px;
+                position: absolute;
+                bottom: 120px;
+                background-image: url("roadblock.png");
+                background-repeat: no-repeat;
+                background-size: 100% 100%;
+                overflow: visible;
+            }
+            .lines{
+                width: 10px;
+                height: 100px;
+                background: white;
+                position: absolute;
+                margin-left: 245px;
+            }
+            .gamearea{
+                width: 500px;
+                height: 100vh;
+                background: #1e272e;
+                margin:auto;
+                position: relative;
+                overflow: hidden;
+                border-left: 10px dashed white;
+                border-right: 10px dashed white;
+            }
+            .score{
+                position: absolute;
+                top: 20px;
+                left: 40px;
+                background-color:yellow;
+                width: 300px;
+                line-height: 70px;
+                text-align: center;
+                color:black;
+                border: 1px dashed black;
+                font-family: fantasy;
+                font-size: 2em;
+            }
+            .startscreen{
+                position: absolute;
+                background-color:aqua;
+                left:50%;
+                top:50%;
+                transform: translate(-50%,-50%);
+                color:black;
+                z-index:1;
+                text-align: center;
+                border: 2px dashed black;
+                padding:15px;
+                margin:auto;
+                width:20%;
+                cursor:pointer;
+                word-spacing: 4;
+                font-family: fantasy;
+                line-height: 30px;
+                font-size: 3em;
+                text-transform: uppercase;
+            }
+        </style>
+    </head>
+    <body>
+        <!--<audio id="player" autoplay loop>
+        <source src="speedoMania.mp3"  type="audio/mp3">
+            not supported
+        </audio>-->
+
+        <div class="cargame">
+            <div class="score"></div>
+            <div class="startscreen">
+                <p> START  </p>
+            </div>
+            <div class="gamearea"></div>
+        </div>
+
+        
+
+         <script>
+            const score = document.querySelector('.score');
+            const startscreen= document.querySelector('.startscreen');
+            const gamearea = document.querySelector('.gamearea');
+            // console.log(gamearea);
+
+            startscreen.addEventListener('click', start);
+            let player = { speed : 10,score : 0};
+
+            let keys = { ArrowUp : false, ArrowDown : false, ArrowLeft : false, ArrowRight : false }
+            document.addEventListener('keydown', keyDown);
+            document.addEventListener('keyup', keyUp);
+
+         function keyDown(a){
+          a.preventDefault();
+          keys[a.key]=true;
+         
+          }
+         function keyUp(a){
+         a.preventDefault();
+         keys[a.key] = false;
+         
+          }
+
+         function collide(b,c){
+            bRect = b.getBoundingClientRect();
+            cRect = c.getBoundingClientRect();
+
+            return !((bRect.bottom < cRect.top) ||(bRect.top > cRect.bottom) || (bRect.right < cRect.left) || (bRect.left > cRect.right))
+         }
+
+         function movelines(){
+              let lines = document.querySelectorAll('.lines');
+              lines.forEach(function(item){
+
+                if(item.y >= 700){
+                    item.y -= 750;
+                }
+                  item.y += player.speed;
+                  item.style.top = item.y + "px";
+ 
+              })
+          }
+
+
+          function gameEnd(){
+              player.start = false;
+              startscreen.classList.remove('hide');
+              startscreen.innerHTML = " GAME OVER  <br><br> RESTART";
+          }
+
+          function moveEnemy(car) {
+                let enemy = document.querySelectorAll('.enemy');
+                enemy.forEach(function (item) {
+
+                    if(collide(car,item)){
+                        //console.log("oops hitted");
+                        gameEnd();
+                    }
+
+                    if (item.y >= 700) {
+                        item.y = -400;
+                        item.style.left = Math.floor(Math.random() * 450) + "px";
+                    }
+                    item.y += player.speed;
+                    item.style.top = item.y + "px";
+
+                })
+            }
+
+
+          function gameplay() {
+                // console.log("Hey I am Priyanka");
+                let car = document.querySelector('.car');
+                let road = gamearea.getBoundingClientRect();
+                
+
+                if(player.start){
+                   
+                    movelines();
+                    moveEnemy(car);
+
+                    if(keys.ArrowUp && player.y > (road.top + 105)){ player.y -= player.speed}
+                    if (keys.ArrowDown && player.y < (road.bottom - 105)) { player.y += player.speed }
+                    if (keys.ArrowLeft && player.x > 0) { player.x -= player.speed }
+                    if (keys.ArrowRight && player.x < (road.width - 50)) { player.x += player.speed }
+
+                    car.style.top = player.y + "px";
+                    car.style.left = player.x + "px";
+                 window.requestAnimationFrame(gameplay);
+                 
+
+                 player.score++;
+                 score.innerHTML = "SCORES:"+ player.score;
+                }
+            } 
+         function start(){
+
+             //gamearea.classList.remove('hide');
+             startscreen.classList.add('hide');
+             gamearea.innerHTML = "";
+
+             player.start = true;
+             player.score = 00;
+             window.requestAnimationFrame(gameplay);
+
+             for(x=0; x<5; x++){
+                 let roadline = document.createElement('div');
+                 roadline.setAttribute('class', 'lines');
+                 roadline.y = (x * 150);
+                 roadline.style.top = roadline.y  + "px";
+                 gamearea.appendChild(roadline);
+
+             }
+             
+
+             let car = document.createElement('div');
+             car.setAttribute('class','car');
+             
+             gamearea.appendChild(car);
+
+             player.x = car.offsetLeft;
+             player.y = car.offsetTop;
+
+
+            for (x = 0; x < 3 ; x++) {
+                 let enemycar = document.createElement('div');
+                 enemycar.setAttribute('class', 'enemy');
+                 enemycar.y =((x+1) * 450) * -1;
+                 enemycar.style.top = enemycar.y + "px";
+                 enemycar.style.backgroundColor = "black"; 
+                 enemycar.style.left = Math.floor(Math.random() * 450)+"px";
+                
+                 gamearea.appendChild(enemycar);
+             }
+         } 
+         
+        </script>
+    </body>
+</html>
